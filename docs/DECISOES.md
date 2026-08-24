@@ -26,6 +26,12 @@ A limpeza e as regras foram colocadas em `nivel_2/pipeline.py` para que o fluxo 
 
 Na base maior, foram carregados 322 registros, reduzidos para 317 após a deduplicação por `id`. A Regra 1 sinalizou 16 operações e a Regra 2 sinalizou 21 operações. O resultado foi salvo em CSV com separador `;` e decimal `,` para abrir corretamente em planilhas configuradas para o padrão brasileiro.
 
+## Nível 2 — Parte B
+
+As ferramentas usam a mesma base tratada da Parte A e não fazem chamadas de LLM. O agente recebe as flags determinísticas e as declarações das três ferramentas, mas o modelo decide quais consultas são necessárias. O loop aceita múltiplas rodadas, registra as ferramentas chamadas e possui limites de rodadas e de chamadas para evitar ciclos.
+
+No teste com `CLI-014`, o agente fez cinco chamadas em três rodadas: uma consulta de histórico, três consultas por data e uma consulta de perfil por canal. O parecer final foi validado com Pydantic e os tokens e a latência foram registrados.
+
 ## Itens ainda não implementados
 
-O Nível 2 ainda precisa das ferramentas de consulta, do agente, da execução em lote e do confronto entre regras e modelo. O Nível 3 será avaliado após a conclusão dos requisitos obrigatórios.
+O Nível 2 ainda precisa da execução em lote e do confronto entre regras e modelo. O Nível 3 será avaliado após a conclusão dos requisitos obrigatórios.

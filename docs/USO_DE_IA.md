@@ -1,5 +1,15 @@
 # Uso de IA
 
+## Uso de IA no Nivel 2
+
+- O Codex apoiou a implementacao das ferramentas deterministicas e do agente com function calling.
+- As ferramentas `historico_cliente`, `operacoes_do_dia` e `perfil_canal` consultam a base tratada e realizam os calculos em Python/pandas, sem uso de LLM.
+- O Gemini recebe essas ferramentas como opcoes e decide quais consultar conforme o contexto do cliente. O agente nao chama todas automaticamente e pode realizar mais de uma rodada de tool calling.
+- O agente possui limites de rodadas e de chamadas para evitar loops. A resposta final e validada pelo modelo Pydantic `Parecer`.
+- O resultado registra as ferramentas escolhidas, rodadas, tokens e latencia quando essas metricas sao retornadas pela API.
+- O cache atual reutiliza, durante a execucao do processo, o resultado para o mesmo cliente e os mesmos parametros. Ele e mantido em memoria.
+- A validacao manual confirmou a selecao dinamica de ferramentas em tres rodadas para o cliente `CLI-014`.
+
 Este documento registra como ferramentas de IA foram utilizadas no desenvolvimento, conforme solicitado pelo desafio.
 
 ## Ferramentas utilizadas

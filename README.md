@@ -6,7 +6,8 @@ Solução para o desafio de triagem de operações financeiras, separando cálcu
 
 - Nível 1: Parte A e Parte B implementadas e executadas.
 - Nível 2: Parte A implementada e executada.
-- Nível 2: ferramentas, agente, execução em lote e confronto pendentes.
+- Nível 2: Parte B implementada e testada com o Gemini.
+- Nível 2: execução em lote e confronto pendentes.
 - Nível 3: ainda não iniciado.
 
 ## Estrutura
