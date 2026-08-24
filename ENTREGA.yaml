@@ -1,6 +1,6 @@
 candidato: Gabriel Jesus
-modelo_usado: a definir
-provedor: a definir
+modelo_usado: gemini-3.6-flash
+provedor: google-ai-studio
 horas_dedicadas: 0
 
 nivel_1:
@@ -11,7 +11,7 @@ nivel_1:
   comparacao_prompts: {status: completo, onde: "nivel_1/nivel_1.ipynb, resultados dos prompts V1 e V2"}
 
 nivel_2:
-  regras_em_escala: {status: nao_feito, plano: "Reaproveitar a pipeline do Nível 1 no dataset maior"}
+  regras_em_escala: {status: nao_feito, plano: "Reaproveitar a pipeline do Nível 1 no dataset maior após concluir o Nível 1"}
   ferramentas: {status: nao_feito, plano: "Implementar as três ferramentas de consulta"}
   agente: {status: nao_feito, plano: "Implementar agente com seleção condicional de ferramentas"}
   lote: {status: nao_feito, plano: "Executar o agente nos dez clientes mais sinalizados"}

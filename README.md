@@ -4,7 +4,9 @@ Solução para o desafio de triagem de operações financeiras, separando cálcu
 
 ## Status
 
-O projeto está sendo desenvolvido por níveis. Os resultados executados serão mantidos no repositório, conforme exigido pelo enunciado.
+- Nível 1: Parte A e Parte B implementadas e executadas.
+- Nível 2: não iniciado.
+- Nível 3: ainda não iniciado.
 
 ## Estrutura
 
@@ -17,7 +19,7 @@ O projeto está sendo desenvolvido por níveis. Os resultados executados serão 
 
 ## Como executar
 
-As instruções detalhadas serão atualizadas conforme cada nível for concluído. Dependências:
+Instale as dependências:
 
 ```bash
 pip install -r requirements.txt
@@ -27,7 +29,4 @@ Nenhuma chave de API deve ser commitada. Copie `.env.example` para `.env` e pree
 
 ## Escopo atual
 
-- Estrutura inicial criada.
-- Datasets copiados para `dados/`.
-- Implementação dos Níveis 1 e 2 em andamento.
-
+Os resultados executados ficam commitados no notebook do Nível 1 e em `outputs/`, conforme exigido pelo desafio.

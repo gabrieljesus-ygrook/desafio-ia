@@ -22,4 +22,4 @@ A validação compara o caso positivo de `CLI-A-1` em 2026-03-09, com três oper
 
 ## Itens ainda não implementados
 
-A Parte A do Nível 1 está implementada e executada. A Parte B do Nível 1 e o Nível 2 ainda estão em desenvolvimento. O Nível 3 será avaliado somente após a conclusão dos requisitos obrigatórios.
+O Nível 2 e o Nível 3 serão retomados somente após a conclusão e revisão do Nível 1.
