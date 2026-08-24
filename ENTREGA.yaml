@@ -7,8 +7,8 @@ nivel_1:
   limpeza_dados: {status: completo, onde: "nivel_1/nivel_1.ipynb, células de diagnóstico e limpeza"}
   regras_pandas: {status: completo, onde: "nivel_1/nivel_1.ipynb, células das Regras 1 e 2"}
   validacao_regras: {status: completo, onde: "nivel_1/nivel_1.ipynb, célula de validação da Regra 1"}
-  saida_estruturada: {status: nao_feito, plano: "Implementar integração com LLM e validação de schema"}
-  comparacao_prompts: {status: nao_feito, plano: "Comparar prompt básico e prompt estruturado"}
+  saida_estruturada: {status: completo, onde: "nivel_1/nivel_1.ipynb, células da Parte B com schema Pydantic e chamada Gemini"}
+  comparacao_prompts: {status: completo, onde: "nivel_1/nivel_1.ipynb, resultados dos prompts V1 e V2"}
 
 nivel_2:
   regras_em_escala: {status: nao_feito, plano: "Reaproveitar a pipeline do Nível 1 no dataset maior"}

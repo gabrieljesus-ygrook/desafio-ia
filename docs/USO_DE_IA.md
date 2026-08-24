@@ -5,15 +5,21 @@ Este documento registra como ferramentas de IA foram utilizadas no desenvolvimen
 ## Ferramentas utilizadas
 
 - ChatGPT/Codex: leitura e organização do enunciado, planejamento da estrutura do repositório, apoio na implementação e revisão de código/documentação.
-- LLM a ser escolhido para o desafio: geração de pareceres interpretativos a partir dos fatos calculados pela pipeline determinística.
+- Gemini (`gemini-3.6-flash`): geração de pareceres interpretativos a partir dos fatos calculados pela pipeline determinística. A chamada foi feita via API HTTP, com a chave carregada do `.env` local.
 
 ## Princípios adotados
 
 - Cálculos, agregações, medianas, contagens e comparação com limites são realizados em Python/pandas.
 - A LLM é usada para interpretação e redação do parecer, não para substituir regras numéricas.
+- A resposta foi solicitada em JSON e validada com Pydantic; respostas malformadas são capturadas como falha de validação.
 - Chaves e credenciais permanecem apenas em variáveis de ambiente locais.
 
 ## Revisão humana
 
 Todo código sugerido por IA será revisado, executado e compreendido antes da entrega. Eventuais erros ou sugestões descartadas serão registrados aqui durante o desenvolvimento.
 
+## Observações da execução
+
+- O modelo inicialmente configurado (`gemini-2.5-flash-lite`) retornou indisponibilidade para novos usuários. A lista de modelos disponível para a chave indicou `gemini-3.6-flash`, que foi usado na execução real.
+- O Prompt V1 retornou risco alto, enquanto o Prompt V2 retornou risco médio e apresentou uma justificativa mais cuidadosa sobre a diferença entre indício e prova. Isso reforça a decisão de usar instruções explícitas e registrar limitações no Prompt V2.
+- A chamada Gemini possui até três tentativas, com espera progressiva para erros temporários, limites de requisição e respostas malformadas. Na última execução, o Prompt V1 precisou de duas tentativas e o Prompt V2 foi aceito na primeira.
