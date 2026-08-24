@@ -6,7 +6,9 @@ O projeto começa com uma pipeline em Python, usando pandas para tratamento e re
 
 ## Qualidade dos dados
 
-No Nível 1 foram encontrados 20 registros brutos, uma duplicidade de `OP-0007`, uma operação sem data (`OP-0017`) e uma operação em USD. A duplicata foi removida por `id`, a operação sem data foi preservada para não perder volume financeiro e excluída apenas de agrupamentos que dependem de data, e o USD foi convertido pela taxa fixa fornecida no arquivo.
+No Nível 1 foram encontrados 20 registros brutos, uma repetição de `OP-0007`, uma operação sem data (`OP-0017`) e uma operação em USD. A análise do esquema indicou que `id` é a chave única de cada registro. Por isso, a filtragem de duplicidade é feita exclusivamente por `id`, mantendo a primeira ocorrência e descartando ocorrências posteriores com a mesma chave, independentemente dos demais campos. A operação sem data foi preservada para não perder volume financeiro e excluída apenas de agrupamentos que dependem de data, e o USD foi convertido pela taxa fixa fornecida no arquivo.
+
+Essa escolha evita contar duas vezes uma mesma operação. Em um cenário real, se registros com o mesmo `id` apresentassem campos divergentes, o ideal seria encaminhá-los para uma fila de inconsistências e investigar a origem, em vez de escolher silenciosamente uma versão.
 
 Não foram encontrados campos ausentes, valores nulos ou valores não positivos.
 
