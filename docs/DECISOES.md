@@ -20,6 +20,12 @@ Operações matemáticas e decisões baseadas em limites ficarão no código. A 
 
 A validação compara o caso positivo de `CLI-A-1` em 2026-03-09, com três operações somando R$ 54.200,00, contra o caso parecido de `CLI-A-3`, que soma R$ 48.500,00 e fica abaixo do limite. A regra sinaliza somente o primeiro caso.
 
+## Nível 2 — Parte A
+
+A limpeza e as regras foram colocadas em `nivel_2/pipeline.py` para que o fluxo completo possa ser executado pelo `main`, sem depender de chamadas manuais de cada função. O ranking ordena primeiro pelo total de sinalizações e usa o volume total em BRL como desempate.
+
+Na base maior, foram carregados 322 registros, reduzidos para 317 após a deduplicação por `id`. A Regra 1 sinalizou 16 operações e a Regra 2 sinalizou 21 operações. O resultado foi salvo em CSV com separador `;` e decimal `,` para abrir corretamente em planilhas configuradas para o padrão brasileiro.
+
 ## Itens ainda não implementados
 
-O Nível 2 e o Nível 3 serão retomados somente após a conclusão e revisão do Nível 1.
+O Nível 2 ainda precisa das ferramentas de consulta, do agente, da execução em lote e do confronto entre regras e modelo. O Nível 3 será avaliado após a conclusão dos requisitos obrigatórios.

@@ -5,7 +5,8 @@ Solução para o desafio de triagem de operações financeiras, separando cálcu
 ## Status
 
 - Nível 1: Parte A e Parte B implementadas e executadas.
-- Nível 2: não iniciado.
+- Nível 2: Parte A implementada e executada.
+- Nível 2: ferramentas, agente, execução em lote e confronto pendentes.
 - Nível 3: ainda não iniciado.
 
 ## Estrutura
@@ -30,3 +31,5 @@ Nenhuma chave de API deve ser commitada. Copie `.env.example` para `.env` e pree
 ## Escopo atual
 
 Os resultados executados ficam commitados no notebook do Nível 1 e em `outputs/`, conforme exigido pelo desafio.
+
+Na Parte A do Nível 2, a pipeline em `nivel_2/pipeline.py` reaplica a limpeza e as duas regras no dataset maior. O ranking organizado é salvo em `outputs/nivel_2_top10_clientes_organizado.csv`.

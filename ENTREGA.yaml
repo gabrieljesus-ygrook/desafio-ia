@@ -11,7 +11,7 @@ nivel_1:
   comparacao_prompts: {status: completo, onde: "nivel_1/nivel_1.ipynb, resultados dos prompts V1 e V2"}
 
 nivel_2:
-  regras_em_escala: {status: nao_feito, plano: "Reaproveitar a pipeline do Nível 1 no dataset maior após concluir o Nível 1"}
+  regras_em_escala: {status: completo, onde: "nivel_2/pipeline.py e outputs/nivel_2_top10_clientes_organizado.csv"}
   ferramentas: {status: nao_feito, plano: "Implementar as três ferramentas de consulta"}
   agente: {status: nao_feito, plano: "Implementar agente com seleção condicional de ferramentas"}
   lote: {status: nao_feito, plano: "Executar o agente nos dez clientes mais sinalizados"}
