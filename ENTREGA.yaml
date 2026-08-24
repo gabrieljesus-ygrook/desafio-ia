@@ -1,0 +1,24 @@
+candidato: Gabriel Jesus
+modelo_usado: a definir
+provedor: a definir
+horas_dedicadas: 0
+
+nivel_1:
+  limpeza_dados: {status: parcial, onde: "em desenvolvimento"}
+  regras_pandas: {status: nao_feito, plano: "Implementar no notebook do Nível 1"}
+  validacao_regras: {status: nao_feito, plano: "Validar casos positivos e negativos"}
+  saida_estruturada: {status: nao_feito, plano: "Implementar integração com LLM e validação de schema"}
+  comparacao_prompts: {status: nao_feito, plano: "Comparar prompt básico e prompt estruturado"}
+
+nivel_2:
+  regras_em_escala: {status: nao_feito, plano: "Reaproveitar a pipeline do Nível 1 no dataset maior"}
+  ferramentas: {status: nao_feito, plano: "Implementar as três ferramentas de consulta"}
+  agente: {status: nao_feito, plano: "Implementar agente com seleção condicional de ferramentas"}
+  lote: {status: nao_feito, plano: "Executar o agente nos dez clientes mais sinalizados"}
+  confronto: {status: nao_feito, plano: "Comparar regras determinísticas e pareceres do agente"}
+
+nivel_3:
+  trilha_escolhida: a definir
+  status: nao_feito
+  plano: "Escolher uma trilha após concluir os Níveis 1 e 2"
+
