@@ -6,13 +6,18 @@ O projeto começa com uma pipeline em Python, usando pandas para tratamento e re
 
 ## Qualidade dos dados
 
-Os datasets serão analisados antes da aplicação das regras. Duplicidades, datas ausentes, moedas diferentes e demais inconsistências serão documentadas com evidências no notebook e tratadas de maneira explícita.
+No Nível 1 foram encontrados 20 registros brutos, uma duplicidade de `OP-0007`, uma operação sem data (`OP-0017`) e uma operação em USD. A duplicata foi removida por `id`, a operação sem data foi preservada para não perder volume financeiro e excluída apenas de agrupamentos que dependem de data, e o USD foi convertido pela taxa fixa fornecida no arquivo.
+
+Não foram encontrados campos ausentes, valores nulos ou valores não positivos.
 
 ## Separação entre regras e LLM
 
 Operações matemáticas e decisões baseadas em limites ficarão no código. A LLM receberá fatos já calculados e será solicitada a explicar tipologias, sinais de alerta e justificativa.
 
+## Regra 1
+
+A validação compara o caso positivo de `CLI-A-1` em 2026-03-09, com três operações somando R$ 54.200,00, contra o caso parecido de `CLI-A-3`, que soma R$ 48.500,00 e fica abaixo do limite. A regra sinaliza somente o primeiro caso.
+
 ## Itens ainda não implementados
 
-Os Níveis 1 e 2 ainda estão em desenvolvimento. O Nível 3 será avaliado somente após a conclusão dos requisitos obrigatórios.
-
+A Parte A do Nível 1 está implementada e executada. A Parte B do Nível 1 e o Nível 2 ainda estão em desenvolvimento. O Nível 3 será avaliado somente após a conclusão dos requisitos obrigatórios.

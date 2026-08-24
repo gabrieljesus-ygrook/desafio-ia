@@ -4,9 +4,9 @@ provedor: a definir
 horas_dedicadas: 0
 
 nivel_1:
-  limpeza_dados: {status: parcial, onde: "em desenvolvimento"}
-  regras_pandas: {status: nao_feito, plano: "Implementar no notebook do Nível 1"}
-  validacao_regras: {status: nao_feito, plano: "Validar casos positivos e negativos"}
+  limpeza_dados: {status: completo, onde: "nivel_1/nivel_1.ipynb, células de diagnóstico e limpeza"}
+  regras_pandas: {status: completo, onde: "nivel_1/nivel_1.ipynb, células das Regras 1 e 2"}
+  validacao_regras: {status: completo, onde: "nivel_1/nivel_1.ipynb, célula de validação da Regra 1"}
   saida_estruturada: {status: nao_feito, plano: "Implementar integração com LLM e validação de schema"}
   comparacao_prompts: {status: nao_feito, plano: "Comparar prompt básico e prompt estruturado"}
 
@@ -21,4 +21,3 @@ nivel_3:
   trilha_escolhida: a definir
   status: nao_feito
   plano: "Escolher uma trilha após concluir os Níveis 1 e 2"
-
