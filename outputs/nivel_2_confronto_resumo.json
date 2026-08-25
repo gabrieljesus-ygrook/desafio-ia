@@ -1,0 +1,20 @@
+{
+  "criterio": {
+    "alto": "cliente sinalizado pelas duas regras",
+    "medio": "cliente sinalizado por apenas uma regra",
+    "baixo": "cliente sem sinalizacao pelas regras"
+  },
+  "clientes_comparados": 10,
+  "concordancias": 9,
+  "divergencias": 1,
+  "taxa_concordancia_percentual": 90.0,
+  "detalhes_divergencias": [
+    {
+      "cliente_id": "CLI-014",
+      "nivel_risco_regras": "medio",
+      "nivel_risco_modelo": "alto",
+      "avaliacao_divergencia": "regra_mais_consistente",
+      "analise_divergencia": "O parecer elevou o risco sem apresentar uma segunda tipologia ou evidencia independente. Como apenas uma regra esta ativa, o nivel medio e mais coerente com o criterio definido. A ausencia de chamadas de tools nao e, por si so, um erro: o agente deve consulta-las apenas quando necessario."
+    }
+  ]
+}

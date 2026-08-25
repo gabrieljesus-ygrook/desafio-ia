@@ -14,8 +14,8 @@ nivel_2:
   regras_em_escala: {status: completo, onde: "nivel_2/pipeline.py e outputs/nivel_2_top10_clientes_organizado.csv"}
   ferramentas: {status: completo, onde: "nivel_2/tools.py, historico_cliente, operacoes_do_dia e perfil_canal"}
   agente: {status: completo, onde: "nivel_2/agente.py, seleção dinâmica, múltiplas rodadas e validação do parecer"}
-  lote: {status: nao_feito, plano: "Executar o agente nos dez clientes mais sinalizados"}
-  confronto: {status: nao_feito, plano: "Comparar regras determinísticas e pareceres do agente"}
+  lote: {status: completo, onde: "nivel_2/lote.py e outputs/nivel_2_pareceres_lote.jsonl"}
+  confronto: {status: completo, onde: "nivel_2/confronto.py e outputs/nivel_2_confronto.csv"}
 
 nivel_3:
   trilha_escolhida: a definir

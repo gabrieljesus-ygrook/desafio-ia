@@ -30,6 +30,14 @@ O Gemini foi usado nas analises do Nivel 1 e nos primeiros testes do agente. O Q
 
 O parecer usa schema Pydantic com `nivel_risco`, `tipologia_suspeita`, `red_flags` e `justificativa`. Tokens, latencia, rodadas e tools chamadas sao registrados quando o provedor informa essas metricas. O cache atual e em memoria e evita repetir a mesma analise durante o processo; ele nao e persistente nem substitui uma trilha de auditoria.
 
+## 7. Confronto entre regras e modelo
+
+Como existem duas regras, usei uma proporcao direta: nenhuma regra ativa representa risco baixo, uma representa risco medio e as duas representam risco alto. Se novas regras fossem adicionadas, essa escala precisaria ser recalibrada em vez de apenas repetir os mesmos cortes. A quantidade de operacoes sinalizadas tambem importa e ja participa do ranking, mas nao deve substituir a diversidade de tipologias. Cruzar as duas leituras produz uma triagem mais equilibrada do que usar apenas uma metrica.
+
+O confronto normaliza variacoes textuais do modelo, como `Médio` e `Moderado`, antes de comparar. A taxa observada foi de 90%: nove concordancias em dez clientes. Isso mostra que as avaliacoes foram parecidas, nao que estejam comprovadamente corretas. A divergencia foi o `CLI-014`, classificado como medio pelas regras e alto pelo Qwen3. Considerei a regra mais sustentada porque o parecer nao apresentou uma segunda tipologia ou evidencia independente para elevar o risco. O fato de o agente nao ter chamado tools nao e uma falha por si so: obrigar chamadas em todos os casos transformaria o fluxo em um script.
+
+Em um caso real, regra e LLM serviriam como apoio. A decisao final ficaria com um analista humano, que pode reconhecer contexto e padroes nao previstos no codigo ou no prompt. Assim como codigo gerado por IA precisa ser revisado, o parecer do modelo nao deve ser tratado como decisao absoluta.
+
 ## Limitacoes conhecidas
 
 - Os limiares das regras sao fixos e nao foram calibrados com casos rotulados.
@@ -37,14 +45,14 @@ O parecer usa schema Pydantic com `nivel_risco`, `tipologia_suspeita`, `red_flag
 - O cache e perdido ao encerrar o processo.
 - O Qwen3 local pode levar bastante tempo por cliente e pode produzir um parecer diferente do Gemini.
 - O lote registra erros de API ou de inferencia, mas ainda nao possui retomada por checkpoint de cada cliente.
-- O confronto automatico entre flags deterministicas e pareceres do modelo ainda nao foi implementado.
+- A avaliacao de quem esta mais correto em uma divergencia usa um criterio explicito, mas nao substitui rotulos revisados por especialistas.
 - Nao existem autenticacao, controle de acesso, armazenamento seguro de auditoria ou monitoramento de producao.
 
 ## O que faria com mais tempo
 
-### Confronto entre regras e pareceres
+### Calibracao do confronto
 
-Criaria `nivel_2/confronto.py` para juntar o ranking, as flags por cliente e os pareceres do lote. Calcularia com pandas uma tabela de concordancia, divergencia e clientes sem parecer. Validaria com casos positivos e negativos revisados manualmente, verificando se toda divergencia possui justificativa baseada nos fatos.
+Montaria um conjunto de casos rotulados por especialistas e compararia regras, agente e decisao humana. Usaria matriz de confusao e revisao qualitativa das divergencias para calibrar o criterio de risco, sem tratar concordancia entre duas heuristicas como prova de acerto.
 
 ### Lote resiliente
 
