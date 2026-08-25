@@ -1,0 +1,11 @@
+﻿cliente_id;valido;nivel_risco;rodadas;quantidade_tools;tokens_entrada;tokens_saida;tokens_total;latencia_total_ms;custo_estimado_usd;erro
+CLI-029;True;Médio;1;0;458;113;571;105720,8;0,0;
+CLI-017;True;Médio;1;0;458;165;623;94992,08;0,0;
+CLI-002;True;Médio;1;0;458;151;609;85068,6;0,0;
+CLI-003;True;Médio;1;0;458;154;612;81718,24;0,0;
+CLI-014;True;alto;1;0;481;173;654;92565,44;0,0;
+CLI-023;True;Moderado;1;0;470;143;613;85379,68;0,0;
+CLI-028;True;Moderado;1;0;456;157;613;97324,06;0,0;
+CLI-013;True;Moderado;1;0;457;182;639;92193,46;0,0;
+CLI-005;True;Moderado;1;0;469;167;636;77886,92;0,0;
+CLI-026;True;Moderado;1;0;469;152;621;83603,97;0,0;

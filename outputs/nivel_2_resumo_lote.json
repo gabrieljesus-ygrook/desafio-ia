@@ -1,0 +1,16 @@
+{
+  "clientes_processados": 10,
+  "clientes_validos": 10,
+  "clientes_com_erro": 0,
+  "tokens_entrada_total": 4634,
+  "tokens_saida_total": 1557,
+  "tokens_total": 6191,
+  "latencia_total_ms": 896453.25,
+  "latencia_media_ms": 89645.33,
+  "custo_estimado_total_usd": 0.0,
+  "distribuicao_nivel_risco": {
+    "Moderado": 5,
+    "Médio": 4,
+    "alto": 1
+  }
+}
