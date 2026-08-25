@@ -1,7 +1,7 @@
 candidato: Gabriel Jesus
 modelo_usado: "gemini-3.6-flash e qwen3:latest"
 provedor: "Google AI Studio e Ollama local"
-horas_dedicadas: 0
+horas_dedicadas: 8
 
 nivel_1:
   limpeza_dados: {status: completo, onde: "nivel_1/nivel_1.ipynb, células de diagnóstico e limpeza"}
