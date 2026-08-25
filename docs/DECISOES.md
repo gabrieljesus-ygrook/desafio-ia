@@ -1,37 +1,63 @@
-# Decisões técnicas
+# Decisoes tecnicas
 
-## Estado inicial
+## 1. Separar calculo de interpretacao
 
-O projeto começa com uma pipeline em Python, usando pandas para tratamento e regras determinísticas. A interpretação textual será isolada em uma camada de LLM com saída estruturada e validação.
+Escolhi manter limpeza, conversao cambial, agregacoes, medianas e regras em Python/pandas. A alternativa seria deixar a LLM calcular os indicadores a partir dos registros, mas isso dificultaria a reproducao e abriria espaco para aritmetica inconsistente. A LLM recebe fatos calculados e interpreta risco, tipologia e justificativa.
 
-## Qualidade dos dados
+Essa separacao nao elimina o risco de uma interpretacao ruim. Por isso, o parecer e validado por schema e os fatos usados na analise ficam rastreaveis.
 
-No Nível 1 foram encontrados 20 registros brutos, uma repetição de `OP-0007`, uma operação sem data (`OP-0017`) e uma operação em USD. A análise do esquema indicou que `id` é a chave única de cada registro. Por isso, a filtragem de duplicidade é feita exclusivamente por `id`, mantendo a primeira ocorrência e descartando ocorrências posteriores com a mesma chave, independentemente dos demais campos. A operação sem data foi preservada para não perder volume financeiro e excluída apenas de agrupamentos que dependem de data, e o USD foi convertido pela taxa fixa fornecida no arquivo.
+## 2. Qualidade e chave de deduplicacao
 
-Essa escolha evita contar duas vezes uma mesma operação. Em um cenário real, se registros com o mesmo `id` apresentassem campos divergentes, o ideal seria encaminhá-los para uma fila de inconsistências e investigar a origem, em vez de escolher silenciosamente uma versão.
+O `id` foi tratado como chave unica porque o enunciado e a inspecao dos dados indicam que ele identifica o registro. A alternativa seria deduplicar pela combinacao de todos os campos, mas isso manteria duas versoes da mesma operacao quando algum campo divergisse. Em dados reais, nao escolheria silenciosamente a primeira versao: enviaria conflitos de mesmo `id` para uma fila de inconsistencias.
 
-Não foram encontrados campos ausentes, valores nulos ou valores não positivos.
+Datas invalidas sao preservadas no volume geral e excluidas apenas de regras que dependem de data. A taxa USD/BRL fornecida no arquivo e usada como referencia fixa. Em producao, eu versionaria a fonte da cotacao e a data de referencia.
 
-## Separação entre regras e LLM
+## 3. Regras em escala e ranking
 
-Operações matemáticas e decisões baseadas em limites ficarão no código. A LLM receberá fatos já calculados e será solicitada a explicar tipologias, sinais de alerta e justificativa.
+As regras do Nivel 1 foram extraidas para `nivel_2/pipeline.py` para evitar uma segunda implementacao. O ranking prioriza quantidade de sinalizacoes e usa volume em BRL como desempate. Essa ordenacao e simples e auditavel, mas nao representa um modelo estatistico de priorizacao. Com dados reais, eu validaria o ranking com casos revisados por especialistas e mediria falsos positivos e falsos negativos.
 
-## Regra 1
+## 4. Tools e agente
 
-A validação compara o caso positivo de `CLI-A-1` em 2026-03-09, com três operações somando R$ 54.200,00, contra o caso parecido de `CLI-A-3`, que soma R$ 48.500,00 e fica abaixo do limite. A regra sinaliza somente o primeiro caso.
+As tres tools fazem consultas deterministicas sobre a base tratada. O modelo recebe as declaracoes, mas decide se precisa de historico, operacoes de um dia ou perfil de canal. Chamar todas sempre seria previsivel, porem deixaria de ser um agente e aumentaria latencia e custo.
 
-## Nível 2 — Parte A
+O loop aceita varias rodadas, limita rodadas e chamadas e registra as ferramentas escolhidas. A alternativa seria usar um framework de agentes; escolhi a API HTTP direta para deixar visivel o protocolo de tool calling e reduzir dependencias. O custo e que o controle de mensagens, erros e compatibilidade com cada provedor fica sob responsabilidade do projeto.
 
-A limpeza e as regras foram colocadas em `nivel_2/pipeline.py` para que o fluxo completo possa ser executado pelo `main`, sem depender de chamadas manuais de cada função. O ranking ordena primeiro pelo total de sinalizações e usa o volume total em BRL como desempate.
+## 5. Gemini e Qwen3/Ollama
 
-Na base maior, foram carregados 322 registros, reduzidos para 317 após a deduplicação por `id`. A Regra 1 sinalizou 16 operações e a Regra 2 sinalizou 21 operações. O resultado foi salvo em CSV com separador `;` e decimal `,` para abrir corretamente em planilhas configuradas para o padrão brasileiro.
+O Gemini foi usado nas analises do Nivel 1 e nos primeiros testes do agente. O Qwen3 via Ollama foi escolhido para a execucao local e em lote porque elimina chave externa, custo de API e limite diario. Em troca, a inferencia local e mais lenta e a qualidade da selecao de tools pode variar conforme o hardware e o modelo baixado. A camada de comunicacao foi isolada para permitir trocar o provedor sem alterar as regras ou as tools.
 
-## Nível 2 — Parte B
+## 6. Saida, cache e observabilidade
 
-As ferramentas usam a mesma base tratada da Parte A e não fazem chamadas de LLM. O agente recebe as flags determinísticas e as declarações das três ferramentas, mas o modelo decide quais consultas são necessárias. O loop aceita múltiplas rodadas, registra as ferramentas chamadas e possui limites de rodadas e de chamadas para evitar ciclos.
+O parecer usa schema Pydantic com `nivel_risco`, `tipologia_suspeita`, `red_flags` e `justificativa`. Tokens, latencia, rodadas e tools chamadas sao registrados quando o provedor informa essas metricas. O cache atual e em memoria e evita repetir a mesma analise durante o processo; ele nao e persistente nem substitui uma trilha de auditoria.
 
-No teste com `CLI-014`, o agente fez cinco chamadas em três rodadas: uma consulta de histórico, três consultas por data e uma consulta de perfil por canal. O parecer final foi validado com Pydantic e os tokens e a latência foram registrados.
+## Limitacoes conhecidas
 
-## Itens ainda não implementados
+- Os limiares das regras sao fixos e nao foram calibrados com casos rotulados.
+- A base e carregada em memoria e nao existe controle de concorrencia ou versionamento dos dados.
+- O cache e perdido ao encerrar o processo.
+- O Qwen3 local pode levar bastante tempo por cliente e pode produzir um parecer diferente do Gemini.
+- O lote registra erros de API ou de inferencia, mas ainda nao possui retomada por checkpoint de cada cliente.
+- O confronto automatico entre flags deterministicas e pareceres do modelo ainda nao foi implementado.
+- Nao existem autenticacao, controle de acesso, armazenamento seguro de auditoria ou monitoramento de producao.
 
-O Nível 2 ainda precisa da execução em lote e do confronto entre regras e modelo. O Nível 3 será avaliado após a conclusão dos requisitos obrigatórios.
+## O que faria com mais tempo
+
+### Confronto entre regras e pareceres
+
+Criaria `nivel_2/confronto.py` para juntar o ranking, as flags por cliente e os pareceres do lote. Calcularia com pandas uma tabela de concordancia, divergencia e clientes sem parecer. Validaria com casos positivos e negativos revisados manualmente, verificando se toda divergencia possui justificativa baseada nos fatos.
+
+### Lote resiliente
+
+Persistiria cada cliente assim que terminasse, com status, tentativa, erro e timestamp. O executor leria o arquivo existente e retomaria apenas clientes pendentes. Validaria interrompendo a execucao no meio e confirmando que a retomada nao duplica registros.
+
+### Avaliacao dos modelos
+
+Manteria Gemini e Qwen3 atras de uma interface comum e executaria ambos sobre os mesmos clientes. Compararia validade do schema, latencia, uso de tools, concordancia com as regras e revisao humana. Isso permitiria escolher o modelo por evidencias, nao apenas por custo.
+
+### Dados reais e governanca
+
+Substituiria a taxa fixa por uma fonte versionada, adicionaria testes de contrato do esquema, fila de inconsistencias e armazenamento de auditoria. Validaria reprocessamento idempotente, permissao de acesso e rastreabilidade da versao dos dados, regras e modelo usados em cada parecer.
+
+### Nivel 3
+
+Antes de escolher uma trilha, faria uma prova de conceito pequena e mensuravel. Para uma trilha de RAG, por exemplo, indexaria normas ou procedimentos versionados, recuperaria trechos com metadados e exigiria citacoes no parecer. Validaria a qualidade da recuperacao com perguntas conhecidas e revisao das fontes, sem misturar o calculo transacional com o contexto documental.

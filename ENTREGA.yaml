@@ -1,6 +1,6 @@
 candidato: Gabriel Jesus
-modelo_usado: gemini-3.6-flash
-provedor: google-ai-studio
+modelo_usado: "gemini-3.6-flash e qwen3:latest"
+provedor: "Google AI Studio e Ollama local"
 horas_dedicadas: 0
 
 nivel_1:

@@ -121,37 +121,53 @@ def _validar_parecer(texto):
         return {"valido": False, "parecer": None, "erro": f"{type(erro).__name__}: {erro}"}
 
 
-def _gerar_conteudo(api_key, model, contents):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+def _gerar_conteudo(api_key, model, contents, max_tentativas=3):
+    url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/chat"
     body = {
-        "contents": contents,
-        "tools": [{"functionDeclarations": TOOL_DECLARATIONS}],
-        "generationConfig": {
-            "temperature": 0.2,
-            "responseMimeType": "application/json",
-            "responseSchema": Parecer.model_json_schema(),
-        },
+        "model": model,
+        "messages": contents,
+        "tools": [{"type": "function", "function": tool} for tool in TOOL_DECLARATIONS],
+        "format": Parecer.model_json_schema(),
+        "stream": False,
+        "think": False,
+        "options": {"temperature": 0.2},
     }
-    inicio = time.perf_counter()
-    resposta = requests.post(
-        url,
-        headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-        json=body,
-        timeout=60,
-    )
-    latencia_ms = round((time.perf_counter() - inicio) * 1000, 2)
-    resposta.raise_for_status()
-    return resposta.json(), latencia_ms
+    latencia_total_ms = 0.0
+    for tentativa in range(1, max_tentativas + 1):
+        inicio = time.perf_counter()
+        resposta = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            json=body,
+            timeout=300,
+        )
+        latencia_total_ms += (time.perf_counter() - inicio) * 1000
+
+        if resposta.status_code not in {429, 500, 502, 503, 504}:
+            resposta.raise_for_status()
+            return resposta.json(), round(latencia_total_ms, 2)
+
+        if tentativa == max_tentativas:
+            resposta.raise_for_status()
+
+        espera = resposta.headers.get("Retry-After")
+        espera_segundos = float(espera) if espera else 2 ** tentativa * 5
+        espera_segundos = min(30, espera_segundos)
+        print(
+            f"Tentativa {tentativa}/{max_tentativas} recebeu HTTP {resposta.status_code}. "
+            f"Nova tentativa em {espera_segundos:.0f}s.",
+            flush=True,
+        )
+        time.sleep(espera_segundos)
+
+    raise RuntimeError("Nao foi possivel obter resposta do modelo")
 
 
 @lru_cache(maxsize=128)
 def _analisar_cliente(cliente_id, max_rodadas=4, max_chamadas_tools=6):
     """Executa o agente e retorna parecer, rastreio de tools e metricas."""
     load_dotenv(Path(__file__).parents[1] / ".env")
-    api_key = os.getenv("GEMINI_API_KEY")
-    model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
-    if not api_key:
-        raise RuntimeError("GEMINI_API_KEY nao configurada no arquivo .env")
+    model = os.getenv("OLLAMA_MODEL", "qwen3:latest")
 
     contexto = _contexto_inicial(cliente_id)
     instrucao = (
@@ -162,7 +178,7 @@ def _analisar_cliente(cliente_id, max_rodadas=4, max_chamadas_tools=6):
         "tipologia_suspeita, red_flags e justificativa. Nao invente dados.\n\n"
         f"Contexto deterministico: {json.dumps(contexto, ensure_ascii=False)}"
     )
-    contents = [{"role": "user", "parts": [{"text": instrucao}]}]
+    contents = [{"role": "user", "content": instrucao}]
     ferramentas_chamadas = []
     tokens_entrada = 0
     tokens_saida = 0
@@ -171,25 +187,21 @@ def _analisar_cliente(cliente_id, max_rodadas=4, max_chamadas_tools=6):
     ultimo_erro = None
 
     for rodada in range(1, max_rodadas + 1):
-        resposta, latencia_ms = _gerar_conteudo(api_key, model, contents)
+        resposta, latencia_ms = _gerar_conteudo(None, model, contents)
         latencia_total_ms += latencia_ms
-        uso = resposta.get("usageMetadata", {})
-        tokens_entrada += uso.get("promptTokenCount", 0) or 0
-        tokens_saida += uso.get("candidatesTokenCount", 0) or 0
-        tokens_total += uso.get("totalTokenCount", 0) or 0
+        tokens_entrada += resposta.get("prompt_eval_count", 0) or 0
+        tokens_saida += resposta.get("eval_count", 0) or 0
+        tokens_total += (resposta.get("prompt_eval_count", 0) or 0) + (resposta.get("eval_count", 0) or 0)
 
-        candidatos = resposta.get("candidates", [])
-        if not candidatos:
-            ultimo_erro = "API nao retornou candidatos"
+        conteudo_modelo = resposta.get("message", {})
+        if not conteudo_modelo:
+            ultimo_erro = "Ollama nao retornou mensagem"
             break
-        conteudo_modelo = candidatos[0].get("content", {})
-        partes = conteudo_modelo.get("parts", [])
-        contents.append({"role": "model", "parts": partes})
-        chamadas = [parte.get("functionCall") for parte in partes if parte.get("functionCall")]
+        contents.append(conteudo_modelo)
+        chamadas = conteudo_modelo.get("tool_calls", [])
 
         if not chamadas:
-            textos = [parte.get("text", "") for parte in partes if parte.get("text")]
-            resultado = _validar_parecer("".join(textos))
+            resultado = _validar_parecer(conteudo_modelo.get("content", ""))
             if resultado["valido"]:
                 resultado.update(
                     {
@@ -212,21 +224,16 @@ def _analisar_cliente(cliente_id, max_rodadas=4, max_chamadas_tools=6):
             break
 
         for chamada in chamadas:
-            nome = chamada.get("name")
-            argumentos = chamada.get("args", {})
+            funcao = chamada.get("function", {})
+            nome = funcao.get("name")
+            argumentos = funcao.get("arguments", {})
             resultado_tool = _executar_tool(nome, argumentos)
             ferramentas_chamadas.append({"nome": nome, "argumentos": argumentos})
             contents.append(
                 {
-                    "role": "user",
-                    "parts": [
-                        {
-                            "functionResponse": {
-                                "name": nome,
-                                "response": {"resultado": resultado_tool},
-                            }
-                        }
-                    ],
+                    "role": "tool",
+                    "tool_name": nome,
+                    "content": json.dumps(resultado_tool, ensure_ascii=False),
                 }
             )
 
